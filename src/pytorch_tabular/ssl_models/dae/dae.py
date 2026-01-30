@@ -143,10 +143,13 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
             assert config.decoder_config._config_name in self.ALLOWED_MODELS, (
                 "Decoder must be one of the following: " + ", ".join(self.ALLOWED_MODELS)
             )
-            if "-" in config.encoder_config.layers:
-                config.decoder_config._backbone_input_dim = int(config.encoder_config.layers.split("-")[-1])
+            if config.encoder_config._config_name == "CategoryEmbeddingModelConfig": 
+                if "-" in config.encoder_config.layers:
+                    config.decoder_config._backbone_input_dim = int(config.encoder_config.layers.split("-")[-1])
+                else:
+                    config.decoder_config._backbone_input_dim = int(config.encoder_config.layers)
             else:
-                config.decoder_config._backbone_input_dim = int(config.encoder_config.layers)
+                self.config.decoder_config._backbone_input_dim = self.encoder.output_dim
         super().__init__(config, **kwargs)
 
     def _get_noise_probability(self, name):
