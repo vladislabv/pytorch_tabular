@@ -79,7 +79,7 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
             if x.ndim == 3:
                 x = x.flatten(start_dim=1)
         # encoder
-        print("xdim":, x.ndim)
+        print("xdim:", x.ndim)
         z = self.encoder(x)
         if return_input:
             return self.output_tuple(z, mask), x
