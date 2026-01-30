@@ -67,18 +67,19 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
     def forward(self, x: Dict, perturb: bool = True, return_input: bool = False):
         # (B, N, E)
         x = self._concatenate_features(x)
+        print("xdim1:", x.ndim)
         mask = None
         if perturb:
             # swap noise
             with torch.no_grad():
                 x, mask = self.swap_noise(x)
-        # The input x here is (B, N_Tokens, E) for Transformer, or (B, Combined_Dim) for MLP
-        if self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
-            if x.ndim == 2:
-                # Reshape: (Batch, N_Tokens * Embed_Dim) -> (Batch, N_Tokens, Embed_Dim)
-                embed_dim = self.config.encoder_config.input_embed_dim
-                # N_Tokens = x.shape[1] / embed_dim
-                x = x.view(-1, x.shape[1] // embed_dim, embed_dim)
+        # # The input x here is (B, N_Tokens, E) for Transformer, or (B, Combined_Dim) for MLP
+        # if self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
+        #     if x.ndim == 2:
+        #         # Reshape: (Batch, N_Tokens * Embed_Dim) -> (Batch, N_Tokens, Embed_Dim)
+        #         embed_dim = self.config.encoder_config.input_embed_dim
+        #         # N_Tokens = x.shape[1] / embed_dim
+        #         x = x.view(-1, x.shape[1] // embed_dim, embed_dim)
         # encoder
         z = self.encoder(x)
         if return_input:
@@ -170,6 +171,7 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
     def forward(self, x: Dict):
         if self.mode == "pretrain":
             x = self.embedding_layer(x)
+            print("xdim:", x.ndim)
             # (B, N, E)
             features = self.featurizer(x, perturb=True)
             z, mask = features.features, features.mask
