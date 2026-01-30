@@ -149,7 +149,7 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
                 else:
                     config.decoder_config._backbone_input_dim = int(config.encoder_config.layers)
             else:
-                self.config.decoder_config._backbone_input_dim = self.encoder.output_dim
+                config.decoder_config._backbone_input_dim = config.latent_dim
         super().__init__(config, **kwargs)
 
     def _get_noise_probability(self, name):
