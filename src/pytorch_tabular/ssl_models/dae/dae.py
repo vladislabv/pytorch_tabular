@@ -76,7 +76,7 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
         if self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
             if x.ndim == 2:
                 # Reshape: (Batch, N_Tokens * Embed_Dim) -> (Batch, N_Tokens, Embed_Dim)
-                embed_dim = self.config.encoder_config.embed_dim
+                embed_dim = self.config.encoder_config.input_embed_dim
                 # N_Tokens = x.shape[1] / embed_dim
                 x = x.view(-1, x.shape[1] // embed_dim, embed_dim)
         # encoder
