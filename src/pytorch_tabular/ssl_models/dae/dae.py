@@ -68,6 +68,7 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
         # (B, N, E)
         x = self._concatenate_features(x)
         print("xdim1:", x.ndim)
+        print("x1shape", x.shape)
         mask = None
         if perturb:
             # swap noise
@@ -171,11 +172,11 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
     def forward(self, x: Dict):
         if self.mode == "pretrain":
             x = self.embedding_layer(x)
-            print("xdim:", x.ndim)
             # (B, N, E)
             features = self.featurizer(x, perturb=True)
             z, mask = features.features, features.mask
             # decoder
+            print("z.ndim", z.ndim)
             if z.ndim == 3:
                 z = z[:, 0, :]
             z_hat = self.decoder(z)
