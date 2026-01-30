@@ -87,7 +87,7 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
     # https://codefying.com/2019/05/04/dont-get-in-a-pickle-with-a-namedtuple/
     output_tuple.__qualname__ = "DenoisingAutoEncoderModel.output_tuple"
     loss_weight_tuple.__qualname__ = "DenoisingAutoEncoderModel.loss_weight_tuple"
-    ALLOWED_MODELS = ["CategoryEmbeddingModelConfig"]
+    ALLOWED_MODELS = ["CategoryEmbeddingModelConfig", "FTTransformerConfig", "TabTransformerConfig"]
 
     def __init__(self, config: DictConfig, **kwargs):
         encoded_cat_dims = 0
