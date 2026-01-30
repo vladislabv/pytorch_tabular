@@ -75,9 +75,11 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
         # The input x here is (B, N_Tokens, E) for Transformer, or (B, Combined_Dim) for MLP
         if not self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
             # Flatten 3D input to 2D for MLP backbones if necessary (old DAE logic)
+            print("xdim:", x.ndim)
             if x.ndim == 3:
                 x = x.flatten(start_dim=1)
         # encoder
+        print("xdim":, x.ndim)
         z = self.encoder(x)
         if return_input:
             return self.output_tuple(z, mask), x
