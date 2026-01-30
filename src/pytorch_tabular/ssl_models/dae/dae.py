@@ -34,14 +34,27 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
         return self.config.noise_probabilities.get(name, self.config.default_noise_probability)
 
     def _build_embedding_layer(self):
-        return MixedEmbedding1dLayer(
-            continuous_dim=self.config.continuous_dim,
-            categorical_embedding_dims=self.config.embedding_dims,
-            max_onehot_cardinality=self.config.max_onehot_cardinality,
-            embedding_dropout=self.config.embedding_dropout,
-            batch_norm_continuous_input=self.config.batch_norm_continuous_input,
-            virtual_batch_size=self.config.virtual_batch_size,
-        )
+        is_transformer = self.config.encoder_config._config_name != "CategoryEmbeddingModelConfig"
+            return MixedEmbedding1dLayer(
+                continuous_dim=self.config.continuous_dim,
+                categorical_embedding_dims=self.config.embedding_dims,
+                max_onehot_cardinality=self.config.max_onehot_cardinality,
+                embedding_dropout=self.config.embedding_dropout,
+                batch_norm_continuous_input=self.config.batch_norm_continuous_input,
+                virtual_batch_size=self.config.virtual_batch_size,
+            )
+        else:
+            continuous_dim = self.config.continuous_dim if self.config.encoder_config._config_name == "FTTransformerConfig" else 0
+            return Embedding2dLayer(
+                continuous_dim=continuous_dim,
+                categorical_cardinality=[(c, self.config.encoder_config.input_embed_dim) for c, _ in self.config.embedding_dims or []],
+                embedding_dim=self.config.encoder_config.input_embed_dim,
+                embedding_dropout=self.config.embedding_dropout,
+                batch_norm_continuous_input=self.config.batch_norm_continuous_input,
+                embedding_bias=False,
+                initialization="kaiming_uniform",
+                virtual_batch_size=self.config.virtual_batch_size,
+            )
 
     def _build_network(self):
         swap_probabilities = []
@@ -92,16 +105,17 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
     ALLOWED_MODELS = ["CategoryEmbeddingModelConfig", "FTTransformerConfig", "TabTransformerConfig"]
 
     def __init__(self, config: DictConfig, **kwargs):
-        encoded_cat_dims = 0
-        inferred_config = kwargs.get("inferred_config")
-        for card, embd_dim in inferred_config.embedding_dims:
-            if card == 2:
-                encoded_cat_dims += 1
-            elif card <= config.max_onehot_cardinality:
-                encoded_cat_dims += card
-            else:
-                encoded_cat_dims += embd_dim
-        config.encoder_config._backbone_input_dim = encoded_cat_dims + len(config.continuous_cols)
+        if config.encoder_config._config_name == "CategoryEmbeddingModelConfig":
+            encoded_cat_dims = 0
+            inferred_config = kwargs.get("inferred_config")
+            for card, embd_dim in inferred_config.embedding_dims:
+                if card == 2:
+                    encoded_cat_dims += 1
+                elif card <= config.max_onehot_cardinality:
+                    encoded_cat_dims += card
+                else:
+                    encoded_cat_dims += embd_dim
+            config.encoder_config._backbone_input_dim = encoded_cat_dims + len(config.continuous_cols)
         assert config.encoder_config._config_name in self.ALLOWED_MODELS, (
             "Encoder must be one of the following: " + ", ".join(self.ALLOWED_MODELS)
         )
