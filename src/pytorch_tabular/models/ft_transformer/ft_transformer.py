@@ -77,10 +77,12 @@ class FTTransformerBackbone(nn.Module):
                 # self._calculate_feature_importance(block.mha.attn_weights)
         if self.hparams.attn_feature_importance:
             self._calculate_feature_importance()
-        # Flatten (Batch, N_Categorical, Hidden) --> (Batch, N_CategoricalxHidden)
-        # x = rearrange(x, "b n h -> b (n h)")
-        # Taking only CLS token for the prediction head
-        return x[:, -1]
+        if self.hparams.task in ["regression", "classification"]: 
+            # Flatten (Batch, N_Categorical, Hidden) --> (Batch, N_CategoricalxHidden)
+            # x = rearrange(x, "b n h -> b (n h)")
+            # Taking only CLS token for the prediction head
+            return x[:, -1]
+        return x
 
     # Not Tested Properly
     def _calculate_feature_importance(self):
