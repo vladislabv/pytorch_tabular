@@ -108,6 +108,10 @@ class FTTransformerConfig(ModelConfig):
         default=32,
         metadata={"help": "The embedding dimension for the input categorical features. Defaults to 32"},
     )
+    layers: int = field(
+        default=32,
+        metadata={"help": "The embedding dimension for the input categorical features. Defaults to 32"},
+    )
     embedding_initialization: Optional[str] = field(
         default="kaiming_uniform",
         metadata={
@@ -200,10 +204,6 @@ class FTTransformerConfig(ModelConfig):
     _model_name: str = field(default="FTTransformerModel")
     _backbone_name: str = field(default="FTTransformerBackbone")
     _config_name: str = field(default="FTTransformerConfig")
-
-    def __post_init__(self):
-        self.layers = self.input_embed_dim
-        super().__post_init__()
 
 
 # if __name__ == "__main__":
