@@ -73,13 +73,13 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
             with torch.no_grad():
                 x, mask = self.swap_noise(x)
         # The input x here is (B, N_Tokens, E) for Transformer, or (B, Combined_Dim) for MLP
-        if not self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
-            # Flatten 3D input to 2D for MLP backbones if necessary (old DAE logic)
-            print("xdim:", x.ndim)
-            if x.ndim == 3:
-                x = x.flatten(start_dim=1)
+        if self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
+            if x.ndim == 2:
+                # Reshape: (Batch, N_Tokens * Embed_Dim) -> (Batch, N_Tokens, Embed_Dim)
+                embed_dim = self.config.encoder_config.embed_dim
+                # N_Tokens = x.shape[1] / embed_dim
+                x = x.view(-1, x.shape[1] // embed_dim, embed_dim)
         # encoder
-        print("xdim:", x.ndim)
         z = self.encoder(x)
         if return_input:
             return self.output_tuple(z, mask), x
