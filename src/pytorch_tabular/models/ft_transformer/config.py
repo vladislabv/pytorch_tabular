@@ -201,6 +201,10 @@ class FTTransformerConfig(ModelConfig):
     _backbone_name: str = field(default="FTTransformerBackbone")
     _config_name: str = field(default="FTTransformerConfig")
 
+    def __post_init__(self):
+        self.layers = self.input_embed_dim
+        super().__post_init__()
+
 
 # if __name__ == "__main__":
 #     from pytorch_tabular.utils import generate_doc_dataclass
