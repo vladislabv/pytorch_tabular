@@ -74,13 +74,6 @@ class DenoisingAutoEncoderFeaturizer(nn.Module):
             # swap noise
             with torch.no_grad():
                 x, mask = self.swap_noise(x)
-        # # The input x here is (B, N_Tokens, E) for Transformer, or (B, Combined_Dim) for MLP
-        # if self.config.encoder_config._config_name in ["FTTransformerConfig", "TabTransformerConfig"]:
-        #     if x.ndim == 2:
-        #         # Reshape: (Batch, N_Tokens * Embed_Dim) -> (Batch, N_Tokens, Embed_Dim)
-        #         embed_dim = self.config.encoder_config.input_embed_dim
-        #         # N_Tokens = x.shape[1] / embed_dim
-        #         x = x.view(-1, x.shape[1] // embed_dim, embed_dim)
         # encoder
         z = self.encoder(x)
         if return_input:
@@ -176,9 +169,6 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
             features = self.featurizer(x, perturb=True)
             z, mask = features.features, features.mask
             # decoder
-            print("z.ndim", z.ndim)
-            if z.ndim == 3:
-                z = z[:, 0, :]
             z_hat = self.decoder(z)
             # reconstruction
             reconstructed_in = self.reconstruction(z_hat)
