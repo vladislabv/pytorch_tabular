@@ -174,6 +174,8 @@ class DenoisingAutoEncoderModel(SSLBaseModel):
             features = self.featurizer(x, perturb=True)
             z, mask = features.features, features.mask
             # decoder
+            if z.ndim == 3:
+                z = z[:, 0, :]
             z_hat = self.decoder(z)
             # reconstruction
             reconstructed_in = self.reconstruction(z_hat)
