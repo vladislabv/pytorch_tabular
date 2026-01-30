@@ -108,9 +108,9 @@ class FTTransformerConfig(ModelConfig):
         default=32,
         metadata={"help": "The embedding dimension for the input categorical features. Defaults to 32"},
     )
-    layers: int = field(
-        default=32,
-        metadata={"help": "The embedding dimension for the input categorical features. Defaults to 32"},
+    layers: Optional[str] = field(
+        default=None,
+        metadata={"help": "Simulated layers string for compatibility with MLP-based configs."}
     )
     embedding_initialization: Optional[str] = field(
         default="kaiming_uniform",
