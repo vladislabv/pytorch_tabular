@@ -15,6 +15,7 @@ from ..base_model import SSLBaseModel
 from ..common.heads import MultiTaskHead
 from ..common.layers import MixedEmbedding1dLayer
 from ..common.noise_generators import SwapNoiseCorrupter
+from ...models.common.layers import Embedding2dLayer
 
 
 class DenoisingAutoEncoderFeaturizer(nn.Module):
